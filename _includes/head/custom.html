@@ -1,6 +1,21 @@
 {% include base_path %}
 
 <!-- start custom head snippets -->
+<script>
+  (function () {
+    // 常にライトを使う
+    try { localStorage.setItem('theme', 'light'); } catch (e) {}
+    document.documentElement.setAttribute('data-theme', 'light');
+  })();
+</script>
+
+<style>
+  /* 念のため，ユーザーのOSダーク設定を無視してライトを優先 */
+  :root { color-scheme: light !important; }
+  @media (prefers-color-scheme: dark) {
+    html, body { background: #fff !important; color: #222 !important; }
+  }
+</style>
 
 <!-- Support for Academicons -->
 <link rel="stylesheet" href="{{ base_path }}/assets/css/academicons.css"/>
