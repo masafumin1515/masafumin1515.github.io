@@ -1,3 +1,8 @@
+/* ===========================================================
+   全ページを完全に白背景に統一
+   =========================================================== */
+
+/* リンク色 */
 a {
   color: #1a4e8a; /* 落ち着いた青 */
   text-decoration: none;
@@ -9,39 +14,100 @@ a:focus {
   text-decoration: underline;
 }
 
-
-/* ===========================================================
-   強制ライトテーマ（masthead と footer を明るくする）
-   =========================================================== */
+/* 背景をすべて白に */
+html,
+body,
+.site,
+.wrapper,
+.page,
+.page__content,
+.page__inner-wrap,
+.archive,
 .masthead,
-.greedy-nav,
+.masthead .greedy-nav,
+.masthead .greedy-nav ul,
+.masthead .greedy-nav .visible-links,
+.masthead .greedy-nav .hidden-links,
 .page__footer {
-  background-color: #f9f9f9  !important; /* 背景を白に */
-  color: #000000 !important;            /* テキストを黒に */
-  border-top: 1px solid #e0e0e0;        /* 上端に薄い線（任意） */
+  background-color: #ffffff !important; /* 完全な白背景 */
+  color: #000000 !important;             /* テキスト黒 */
+  border: none;
 }
 
-/* フッターのリンクや著作権表示を明るいテーマ用に */
+/* ナビゲーションの下にごく薄い線（任意） */
+.masthead {
+  border-bottom: 1px solid #e0e0e0 !important;
+}
+
+/* フッター上部にごく薄い線（任意） */
+.page__footer {
+  border-top: 1px solid #e0e0e0 !important;
+}
+
+/* ナビゲーション内のリンク */
+.masthead .greedy-nav a {
+  color: #000000 !important;
+}
+
+.masthead .greedy-nav a:hover {
+  color: #1a4e8a !important;
+}
+
+/* フッター内のリンク */
 .page__footer a {
-  color: #1a4e8a !important;            /* 落ち着いた青リンク */
+  color: #1a4e8a !important;
 }
 
 .page__footer a:hover {
   color: #003366 !important;
 }
 
-/* Navigation links（上部メニュー）の色も白背景用に */
-.greedy-nav a {
-  color: #000000 !important;
-}
-
-.greedy-nav a:hover {
-  color: #1a4e8a !important;
-}
-
-/* Navボタンのアイコンやバーも調整 */
+/* ハンバーガーアイコン（モバイル用） */
 .greedy-nav button .navicon,
 .greedy-nav button .navicon:before,
 .greedy-nav button .navicon:after {
   background-color: #000000 !important;
+}
+
+
+/* ===== ナビを完全に白で統一（最優先で上書き） ===== */
+.masthead,
+.masthead__inner-wrap,
+.masthead__menu,
+.greedy-nav,
+.greedy-nav > *,
+.greedy-nav .visible-links,
+.greedy-nav .visible-links > li,
+.greedy-nav .visible-links > li > a,
+.greedy-nav .hidden-links,
+.greedy-nav .hidden-links > li,
+.greedy-nav .hidden-links > li > a {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  box-shadow: none !important;
+  border: 0 !important;
+}
+
+/* ホバー時や current 時にグレー背景を入れる既定を打ち消す */
+.greedy-nav .visible-links > li:hover,
+.greedy-nav .visible-links > li:focus,
+.greedy-nav .visible-links > li.current,
+.greedy-nav .visible-links > li > a:hover,
+.greedy-nav .visible-links > li > a:focus,
+.greedy-nav .visible-links > li > a:active {
+  background-color: #ffffff !important;
+  color: #1a4e8a !important; /* 好みで */
+}
+
+/* ハンバーガー（モバイル） */
+.greedy-nav button .navicon,
+.greedy-nav button .navicon:before,
+.greedy-nav button .navicon:after {
+  background-color: #000000 !important;
+}
+
+/* 念押し：ページ全体も白に固定 */
+html, body, .site, .wrapper, .page, .page__content, .page__inner-wrap, .page__footer {
+  background-color: #ffffff !important;
+  color: #000000 !important;
 }
