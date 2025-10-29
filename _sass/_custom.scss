@@ -8,3 +8,40 @@ a:focus {
   color: #003366; /* 少し濃い青 */
   text-decoration: underline;
 }
+
+
+/* ===========================================================
+   強制ライトテーマ（masthead と footer を明るくする）
+   =========================================================== */
+.masthead,
+.greedy-nav,
+.page__footer {
+  background-color: #f9f9f9  !important; /* 背景を白に */
+  color: #000000 !important;            /* テキストを黒に */
+  border-top: 1px solid #e0e0e0;        /* 上端に薄い線（任意） */
+}
+
+/* フッターのリンクや著作権表示を明るいテーマ用に */
+.page__footer a {
+  color: #1a4e8a !important;            /* 落ち着いた青リンク */
+}
+
+.page__footer a:hover {
+  color: #003366 !important;
+}
+
+/* Navigation links（上部メニュー）の色も白背景用に */
+.greedy-nav a {
+  color: #000000 !important;
+}
+
+.greedy-nav a:hover {
+  color: #1a4e8a !important;
+}
+
+/* Navボタンのアイコンやバーも調整 */
+.greedy-nav button .navicon,
+.greedy-nav button .navicon:before,
+.greedy-nav button .navicon:after {
+  background-color: #000000 !important;
+}
