@@ -85,8 +85,8 @@ publication_category:
     title: 'Preprints'
   papers:
     title: 'Peer-reviewed journal papers'
-  conferences:
-    title: 'Peer-reviewed conference abstracts'
+  # conferences:
+  #   title: 'Peer-reviewed conference abstracts'
 
 # Site Settings
 teaser                   :  # filename of teaser fallback teaser image placed in /images/ for social media previews
