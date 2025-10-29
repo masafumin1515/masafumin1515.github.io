@@ -5,10 +5,31 @@ permalink: /awards/
 author_profile: true
 ---
 
-
+<style>
+.award-title {
+  font-family: "Yu Gothic", sans-serif;
+  font-weight: 400;
+}
+</style>
 
 {% include base_path %}
 
-{% for post in site.awards reversed %}
-  {% include archive-single.html %}
-{% endfor %}
+{%- comment -%} 日付で降順（新しい→古い） {%- endcomment -%}
+{% assign all_awards = site.awards | sort: "date" | reverse %}
+
+{%- if all_awards == empty -%}
+  <p><em>受賞はまだありません．</em></p>
+{%- else -%}
+  <ol reversed style="margin-left: 1.2em;">
+    {%- for post in all_awards -%}
+      <li style="margin-bottom: 0.6em; line-height: 1.6;">
+        <span class="award-title" style="font-weight: 500;">
+          {{ post.title }}
+        </span>
+        <span class="award-date" style="color: #666;">
+          ， {{ post.date | date: '%Y年%-m月' }}
+        </span>
+      </li>
+    {%- endfor -%}
+  </ol>
+{%- endif -%}

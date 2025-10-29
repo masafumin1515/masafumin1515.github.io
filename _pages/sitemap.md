@@ -3,6 +3,8 @@ layout: archive
 title: "Sitemap"
 permalink: /sitemap/
 author_profile: true
+published: false
+redirect_to: /
 ---
 
 {% include base_path %}

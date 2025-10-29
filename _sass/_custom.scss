@@ -1,0 +1,10 @@
+a {
+  color: #1a4e8a; /* 落ち着いた青 */
+  text-decoration: none;
+}
+
+a:hover,
+a:focus {
+  color: #003366; /* 少し濃い青 */
+  text-decoration: underline;
+}

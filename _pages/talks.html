@@ -5,12 +5,43 @@ permalink: /talks/
 author_profile: true
 ---
 
-{% if site.talkmap_link == true %}
+{% assign all_talks = site.talks | sort: "date" | reverse %}
 
-<p style="text-decoration:underline;"><a href="/talkmap.html">See a map of all the places I've given a talk!</a></p>
+<!-- 査読あり -->
+{% assign talks_refereed = all_talks | where: "peer_reviewed", true %}
+<h2 class="section-heading" style="border-bottom: 2px solid #ccc; padding-bottom: 4px; margin-top: 2em;">
+  <i class="fa fa-check-circle" style="color:#007acc; margin-right:6px;"></i>
+  Peer-reviewed conferences
+</h2>
 
+{% if talks_refereed == empty %}
+  <p><em>No peer-reviewed conferences yet.</em></p>
+{% else %}
+  <ol reversed style="margin-left: 1.2em;">
+    {% for post in talks_refereed %}
+      <li style="margin-bottom: 1em;">
+        {% include archive-single-talk.html %}
+      </li>
+    {% endfor %}
+  </ol>
 {% endif %}
 
-{% for post in site.talks reversed %}
-  {% include archive-single-talk.html %}
-{% endfor %}
+
+<!-- 査読なし -->
+{% assign talks_nonref = all_talks | where: "peer_reviewed", false %}
+<h2 class="section-heading" style="border-bottom: 2px solid #ccc; padding-bottom: 4px; margin-top: 2em;">
+  <i class="fa fa-circle-o" style="color:#999; margin-right:6px;"></i>
+  Non-peer-reviewed conferences
+</h2>
+
+{% if talks_nonref == empty %}
+  <p><em>No non-peer-reviewed conferences yet.</em></p>
+{% else %}
+  <ol reversed style="margin-left: 1.2em;">
+    {% for post in talks_nonref %}
+      <li style="margin-bottom: 1em;">
+        {% include archive-single-talk.html %}
+      </li>
+    {% endfor %}
+  </ol>
+{% endif %}
