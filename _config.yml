@@ -26,7 +26,11 @@ author:
   avatar           : "profile.png"
   name             : "Masafumi Hayashi"
   pronouns         : # example: "she/her"
+<<<<<<< Updated upstream
   bio              : "大阪大学の博士課程の学生です。流体力学の研究をしています。"
+=======
+  bio              : "大阪大学の博士課程学生です．流体力学の研究をしています．"
+>>>>>>> Stashed changes
   location         : "Osaka, Japan"
   # employer         : "Red Brick University"
   uri              : # URL
@@ -80,11 +84,11 @@ author:
   # zhihu            : # Username
 
 # Publication Category - The following the list of publication categories and their headings
-publication_category:
-  preprints:
-    title: 'Preprints'
-  papers:
-    title: 'Peer-reviewed journal papers'
+# publication_category:
+#   preprints:
+#     title: 'Submitted'
+#   papers:
+#     title: 'Published'
   # conferences:
   #   title: 'Peer-reviewed conference abstracts'
 
@@ -222,16 +226,16 @@ collections:
   #   output: true
   #   permalink: /:collection/:path/
   publications:
-    output: true
+    output: false
     permalink: /:collection/:path/
   # portfolio:
   #   output: true
   #   permalink: /:collection/:path/
   talks:
-    output: true
+    output: false
     permalink: /:collection/:path/
   awards:
-    output: true
+    output: false
     permalink: /:collection/:path/
 
 

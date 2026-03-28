@@ -6,31 +6,48 @@ author_profile: true
 ---
 
 {% if site.author.googlescholar %}
-  <div class="wordwrap">You can also find my articles on <a href="{{site.author.googlescholar}}">my Google Scholar profile</a>.</div>
+  <div class="wordwrap">
+    You can also find my articles on
+    <a href="{{site.author.googlescholar}}">my Google Scholar profile</a>.
+  </div>
 {% endif %}
 
-{% include base_path %}
+{% assign all_pubs = site.publications | sort: "date" | reverse %}
 
-<!-- New style rendering if publication categories are defined -->
-{% if site.publication_category %}
-  {% for category in site.publication_category  %}
-    {% assign title_shown = false %}
-    {% for post in site.publications reversed %}
-      {% if post.category != category[0] %}
-        {% continue %}
-      {% endif %}
-      {% unless title_shown %}
-        <h2>{{ category[1].title }}</h2><hr />
-        {% assign title_shown = true %}
-      {% endunless %}
-      {% include archive-single.html %}
-    {% endfor %}
-  {% endfor %}
+<!-- Submitted -->
+{% assign pubs_submitted = all_pubs | where: "pub_status", "submitted" %}
+<h2 class="section-heading" style="border-bottom: 2px solid #ccc; padding-bottom: 4px; margin-top: 2em;">
+  <i class="fa fa-file-text-o" style="color:#999; margin-right:6px;"></i>
+  Submitted manuscripts
+</h2>
+
+{% if pubs_submitted == empty %}
+  <p><em>No submitted manuscripts yet.</em></p>
 {% else %}
-  {% for post in site.publications reversed %}
-    {% include archive-single.html %}
-  {% endfor %}
+  <ol reversed style="margin-left: 1.2em;">
+    {% for post in pubs_submitted %}
+      <li style="margin-bottom: 1em;">
+        {% include archive-single-publication.html %}
+      </li>
+    {% endfor %}
+  </ol>
 {% endif %}
 
+<!-- Published -->
+{% assign pubs_published = all_pubs | where: "pub_status", "published" %}
+<h2 class="section-heading" style="border-bottom: 2px solid #ccc; padding-bottom: 4px; margin-top: 2em;">
+  <i class="fa fa-check-circle" style="color:#007acc; margin-right:6px;"></i>
+  Published papers
+</h2>
 
-
+{% if pubs_published == empty %}
+  <p><em></em></p>
+{% else %}
+  <ol reversed style="margin-left: 1.2em;">
+    {% for post in pubs_published %}
+      <li style="margin-bottom: 1em;">
+        {% include archive-single-publication.html %}
+      </li>
+    {% endfor %}
+  </ol>
+{% endif %}
