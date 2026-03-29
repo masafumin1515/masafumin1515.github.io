@@ -26,11 +26,7 @@ author:
   avatar           : "profile.png"
   name             : "Masafumi Hayashi"
   pronouns         : # example: "she/her"
-<<<<<<< Updated upstream
-  bio              : "大阪大学の博士課程の学生です。流体力学の研究をしています。"
-=======
   bio              : "大阪大学の博士課程学生です．流体力学の研究をしています．"
->>>>>>> Stashed changes
   location         : "Osaka, Japan"
   # employer         : "Red Brick University"
   uri              : # URL
