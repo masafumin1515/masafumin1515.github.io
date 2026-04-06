@@ -22,6 +22,8 @@ redirect_from:
 
 
 ## Research Updates
+- 2026-04 \\
+日本学術振興会特別研究員(DC2)に採用されました．
 - 2025-11 \\
 [18th Asian Congress of Fluid Mechanics (ACFM2025)](https://www.18acfm.org/)で口頭発表を行い，Best Oral Presentation Awardを受賞しました．
 - 2025-09 \\
