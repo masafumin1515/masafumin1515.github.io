@@ -11,7 +11,7 @@ redirect_from:
 ## Bio
 大阪大学大学院基礎工学研究科の博士後期課程に在籍しています．\\
 修士課程から現在まで，[杉山和靖教授](https://rd.iai.osaka-u.ac.jp/ja/4f3be6b665b51b35.html)の研究室で研究を続けています．  \\
-学士課程では，[後藤晋教授](https://fm.me.es.osaka-u.ac.jp/goto/index.html)および[本告遊太郎助教](https://ymotoori.github.io/)のご指導のもと，乱流に関する研究に取り組みました． \\
+学士課程では，[後藤晋教授](https://fm.me.es.osaka-u.ac.jp/goto/index.html)および[本告遊太郎講師](https://ymotoori.github.io/)のご指導のもと，乱流に関する研究に取り組みました． \\
 研究分野は流体力学，マイクロ流体工学です．現在はマイクロ流路内における粒子移動を研究しています．\\
 趣味としてジムでのトレーニングを楽しんでいます🏋️‍♀️
 
