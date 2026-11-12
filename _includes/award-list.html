@@ -1,0 +1,14 @@
+{% comment %} Body of the Awards page, newest first. {% endcomment %}
+{% assign t = site.data.i18n[page.lang] %}
+{% assign awards = site.awards | sort: "date" | reverse %}
+
+{% if awards.size == 0 %}
+  <p><em>{{ t.awards.none }}</em></p>
+{% else %}
+  <ol class="entry-list" reversed>
+    {% for award in awards %}
+      {% if page.lang == "en" %}{% assign title = award.title_en | default: award.title %}{% else %}{% assign title = award.title %}{% endif %}
+      <li>{{ title }}{{ t.list_sep }}<span class="entry__date">{{ award.date | date: t.date_month }}</span></li>
+    {% endfor %}
+  </ol>
+{% endif %}

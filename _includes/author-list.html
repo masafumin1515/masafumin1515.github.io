@@ -1,0 +1,10 @@
+{% comment %}
+  Joins include.authors with the separators of the page language.
+  include.mark_self=true underlines the site owner (used for the presenter in talks).
+  include.lang overrides the separator language (English names on a Japanese page).
+{% endcomment %}
+{%- assign sep = site.data.i18n[include.lang] | default: site.data.i18n[page.lang] -%}
+{%- for name in include.authors -%}
+  {%- unless forloop.first -%}{%- if forloop.last -%}{{ sep.author_last_sep }}{%- else -%}{{ sep.author_sep }}{%- endif -%}{%- endunless -%}
+  {%- if include.mark_self and site.data.i18n.self_names contains name -%}<u>{{ name }}</u>{%- else -%}{{ name }}{%- endif -%}
+{%- endfor -%}

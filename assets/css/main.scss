@@ -13,7 +13,7 @@
 
     "themes",
     "theme/{{ site.site_theme | default: 'default' | append: '_light' }}",
-    "theme/{{ site.site_theme | default: 'default' | append: '_dark' }}",
+    // The dark palette is not imported: the site is always shown in the light theme.
 
     "include/mixins",
     "vendor/susy/susy",

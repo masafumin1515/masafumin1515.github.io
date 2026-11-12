@@ -1,0 +1,25 @@
+{% comment %} One talk from _talks/, in the language of the page. {% endcomment %}
+{% assign t = site.data.i18n[page.lang] %}
+{% if page.lang == "en" %}
+  {% assign title = talk.title_en | default: talk.title %}
+  {% assign authors = talk.authors_en | default: talk.authors %}
+  {% assign venue = talk.venue_en | default: talk.venue %}
+  {% assign location = talk.location_en | default: talk.location %}
+  {% assign award = talk.award_en | default: talk.award %}
+{% else %}
+  {% assign title = talk.title %}
+  {% assign authors = talk.authors %}
+  {% assign venue = talk.venue %}
+  {% assign location = talk.location %}
+  {% assign award = talk.award %}
+{% endif %}
+{% comment %} Talks given in English have no authors_en; keep English separators for them. {% endcomment %}
+{% if talk.authors_en %}{% assign author_lang = page.lang %}{% else %}{% assign author_lang = "en" %}{% endif %}
+
+<li>
+  <p class="entry__title">{{ title }}</p>
+  <p class="entry__meta">{{ talk.date | date: t.date_day }}</p>
+  <p class="entry__meta">{{ t.formats[talk.format] }}{{ t.list_sep }}{{ venue }}{{ t.list_sep }}{{ location }}</p>
+  <p class="entry__authors">{% include author-list.html authors=authors mark_self=true lang=author_lang %}</p>
+  {% if award %}<p class="entry__award"><i class="fas fa-trophy" aria-hidden="true"></i> {{ award }}</p>{% endif %}
+</li>

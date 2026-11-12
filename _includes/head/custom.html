@@ -1,42 +1,24 @@
 {% include base_path %}
 
 <!-- start custom head snippets -->
-<script>
-  (function () {
-    // 常にライトを使う
-    try { localStorage.setItem('theme', 'light'); } catch (e) {}
-    document.documentElement.setAttribute('data-theme', 'light');
-  })();
-</script>
 
-<style>
-  /* 念のため，ユーザーのOSダーク設定を無視してライトを優先 */
-  :root { color-scheme: light !important; }
-  @media (prefers-color-scheme: dark) {
-    html, body { background: #fff !important; color: #222 !important; }
-  }
-</style>
-
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-PBT30RQLTE"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-PBT30RQLTE');
-</script>
+<!-- The same page in the other language, for search engines -->
+{% unless page.lang_switch == false %}
+  {% if page.lang == "en" %}
+    {% assign ja_url = page.url | remove_first: "/en" %}
+    {% assign en_url = page.url %}
+  {% else %}
+    {% assign ja_url = page.url %}
+    {% assign en_url = page.url | prepend: "/en" %}
+  {% endif %}
+<link rel="alternate" hreflang="ja" href="{{ base_path }}{{ ja_url }}"/>
+<link rel="alternate" hreflang="en" href="{{ base_path }}{{ en_url }}"/>
+<link rel="alternate" hreflang="x-default" href="{{ base_path }}{{ ja_url }}"/>
+{% endunless %}
 
 <!-- Support for Academicons -->
 <link rel="stylesheet" href="{{ base_path }}/assets/css/academicons.css"/>
 
-<!-- favicon from https://commons.wikimedia.org/wiki/File:OOjs_UI_icon_academic-progressive.svg -->
-<link rel="apple-touch-icon" sizes="180x180" href="{{ base_path }}/images/apple-touch-icon-180x180.png"/>
-<link rel="icon" type="image/svg+xml" href="{{ base_path }}/images/favicon.svg"/>
-<link rel="icon" type="image/png" href="{{ base_path }}/images/favicon-32x32.png" sizes="32x32"/>
-<link rel="icon" type="image/png" href="{{ base_path }}/images/favicon-192x192.png" sizes="192x192"/>
-<link rel="manifest" href="{{ base_path }}/images/manifest.json"/>
-<link rel="icon" href="/images/favicon.ico"/>
 <meta name="theme-color" content="#ffffff"/>
 
 <!-- end custom head snippets -->

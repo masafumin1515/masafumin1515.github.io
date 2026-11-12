@@ -1,113 +1,108 @@
-/* ===========================================================
-   全ページを完全に白背景に統一
-   =========================================================== */
+/* ==========================================================================
+   Site-specific styles, loaded last (see assets/css/main.scss)
+   ========================================================================== */
 
-/* リンク色 */
+$link-blue       : #1a4e8a;
+$link-blue-dark  : #003366;
+$rule-gray       : #e0e0e0;
+$award-orange    : #d35400;
+
+/* White background, black text and blue links everywhere.
+   The theme reads its colors from these variables. */
+:root {
+  color-scheme: light;
+  --global-base-color                : #fff;
+  --global-bg-color                  : #fff;
+  --global-footer-bg-color           : #fff;
+  --global-text-color                : #000;
+  --global-link-color                : #{$link-blue};
+  --global-link-color-hover          : #{$link-blue-dark};
+  --global-link-color-visited        : #{$link-blue};
+  --global-masthead-link-color       : #000;
+  --global-masthead-link-color-hover : #{$link-blue};
+}
+
 a {
-  color: #1a4e8a; /* 落ち着いた青 */
   text-decoration: none;
+
+  &:hover,
+  &:focus {
+    text-decoration: underline;
+  }
 }
 
-a:hover,
-a:focus {
-  color: #003366; /* 少し濃い青 */
-  text-decoration: underline;
+/* Header and footer: thin gray rules instead of the theme's colored ones */
+.masthead::after {
+  background: $rule-gray;
 }
 
-/* 背景をすべて白に */
-html,
-body,
-.site,
-.wrapper,
-.page,
-.page__content,
-.page__inner-wrap,
-.archive,
-.masthead,
-.masthead .greedy-nav,
-.masthead .greedy-nav ul,
-.masthead .greedy-nav .visible-links,
-.masthead .greedy-nav .hidden-links,
+.greedy-nav .visible-links a:hover {
+  color: $link-blue;
+}
+
 .page__footer {
-  background-color: #ffffff !important; /* 完全な白背景 */
-  color: #000000 !important;             /* テキスト黒 */
-  border: none;
+  border-top: 1px solid $rule-gray;
+  color: #666;
 }
 
-/* ナビゲーションの下にごく薄い線（任意） */
-.masthead {
-  border-bottom: 1px solid #e0e0e0 !important;
+/* Language switch at the right end of the header */
+.lang-switch a {
+  font-size: $type-size-6;
+  white-space: nowrap;
 }
 
-/* フッター上部にごく薄い線（任意） */
-.page__footer {
-  border-top: 1px solid #e0e0e0 !important;
+/* ==========================================================================
+   Publications / Talks / Awards lists
+   ========================================================================== */
+
+.section-heading {
+  margin-top: 2em;
+  padding-bottom: 4px;
+  border-bottom: 2px solid #ccc;
+
+  i {
+    margin-right: 6px;
+    color: #999;
+  }
+
+  &--accent i {
+    color: #007acc;
+  }
 }
 
-/* ナビゲーション内のリンク */
-.masthead .greedy-nav a {
-  color: #000000 !important;
+.entry-list {
+  margin-left: 1.2em;
+
+  > li {
+    margin-bottom: 1.2em;
+    line-height: 1.5;
+  }
+
+  p {
+    margin: 0;
+  }
 }
 
-.masthead .greedy-nav a:hover {
-  color: #1a4e8a !important;
+.entry__title {
+  font-weight: bold;
+  font-size: $type-size-4;
+  line-height: 1.35;
 }
 
-/* フッター内のリンク */
-.page__footer a {
-  color: #1a4e8a !important;
+.entry__meta {
+  font-size: $type-size-6;
+  color: #666;
 }
 
-.page__footer a:hover {
-  color: #003366 !important;
+.entry__authors {
+  margin-top: 0.25em !important;
 }
 
-/* ハンバーガーアイコン（モバイル用） */
-.greedy-nav button .navicon,
-.greedy-nav button .navicon:before,
-.greedy-nav button .navicon:after {
-  background-color: #000000 !important;
+.entry__award {
+  font-weight: bold;
+  color: $award-orange;
 }
 
-
-/* ===== ナビを完全に白で統一（最優先で上書き） ===== */
-.masthead,
-.masthead__inner-wrap,
-.masthead__menu,
-.greedy-nav,
-.greedy-nav > *,
-.greedy-nav .visible-links,
-.greedy-nav .visible-links > li,
-.greedy-nav .visible-links > li > a,
-.greedy-nav .hidden-links,
-.greedy-nav .hidden-links > li,
-.greedy-nav .hidden-links > li > a {
-  background-color: #ffffff !important;
-  color: #000000 !important;
-  box-shadow: none !important;
-  border: 0 !important;
-}
-
-/* ホバー時や current 時にグレー背景を入れる既定を打ち消す */
-.greedy-nav .visible-links > li:hover,
-.greedy-nav .visible-links > li:focus,
-.greedy-nav .visible-links > li.current,
-.greedy-nav .visible-links > li > a:hover,
-.greedy-nav .visible-links > li > a:focus,
-.greedy-nav .visible-links > li > a:active {
-  background-color: #ffffff !important;
-  color: #1a4e8a !important; /* 好みで */
-}
-
-/* ハンバーガー（モバイル） */
-.greedy-nav button .navicon,
-.greedy-nav button .navicon:before,
-.greedy-nav button .navicon:after {
-  background-color: #000000 !important;
-}
-
-/* 念押し：ページ全体も白に固定 */
-html, body, .site, .wrapper, .page, .page__content, .page__inner-wrap, .page__footer {
-  background-color: #ffffff !important;
-  color: #000000 !important;
+.entry__date {
+  color: #666;
 }

@@ -1,4 +1,14 @@
 {% include base_path %}
+{% assign t = site.data.i18n[page.lang] %}
+
+{% comment %} Same page in the other language: /talks/ <-> /en/talks/ {% endcomment %}
+{% if page.lang == "en" %}
+  {% assign other_lang = "ja" %}
+  {% assign other_url = page.url | remove_first: "/en" %}
+{% else %}
+  {% assign other_lang = "en" %}
+  {% assign other_url = page.url | prepend: "/en" %}
+{% endif %}
 
 <div class="masthead">
   <div class="masthead__inner-wrap">
@@ -6,18 +16,15 @@
       <nav id="site-nav" class="greedy-nav">
         <button><div class="navicon"></div></button>
         <ul class="visible-links">
-          <li class="masthead__menu-item masthead__menu-item--lg persist"><a href="{{ base_path }}/">{{ site.title }}</a></li>
+          <li class="masthead__menu-item masthead__menu-item--lg persist"><a href="{{ base_path }}{{ t.home }}">{{ site.title }}</a></li>
           {% for link in site.data.navigation.main %}
-            {% if link.url contains 'http' %}
-              {% assign domain = '' %}
-            {% else %}
-              {% assign domain = base_path %}
-            {% endif %}
-            <li class="masthead__menu-item"><a href="{{ domain }}{{ link.url }}">{{ link.title }}</a></li>
+            <li class="masthead__menu-item"><a href="{{ base_path }}{% if page.lang == "en" %}/en{% endif %}{{ link.url }}">{{ t.nav[link.key] }}</a></li>
           {% endfor %}
-          <!-- <li id="theme-toggle" class="masthead__menu-item persist tail">
-            <a role="button" aria-labelledby="theme-icon"><i id="theme-icon" class="fa-solid fa-sun" aria-hidden="true" title="toggle theme"></i></a>
-          </li> -->
+          {% unless page.lang_switch == false %}
+          <li class="masthead__menu-item persist tail lang-switch">
+            <a href="{{ base_path }}{{ other_url }}" hreflang="{{ other_lang }}" lang="{{ other_lang }}" title="{{ t.switch_title }}"><i class="fas fa-globe" aria-hidden="true"></i> {{ t.switch_label }}</a>
+          </li>
+          {% endunless %}
         </ul>
         <ul class="hidden-links hidden"></ul>
       </nav>

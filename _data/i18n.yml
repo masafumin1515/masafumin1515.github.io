@@ -1,0 +1,69 @@
+# Language-dependent text. Pages pick the block that matches their `lang`
+# (ja by default, en for everything under _pages/en/, see _config.yml).
+
+# Spellings of the site owner's name; underlined in talk author lists (presenter).
+self_names: ["林真史", "Masafumi Hayashi"]
+
+ja:
+  html_lang       : "ja"
+  og_locale       : "ja_JP"
+  home            : "/"
+  switch_label    : "English"
+  switch_title    : "Switch to English"
+  bio             : "大阪大学の博士課程学生です．流体力学の研究をしています．"
+  location        : "大阪"
+  author_sep      : "，"
+  author_last_sep : "，"
+  list_sep        : "，"
+  date_day        : "%Y年%-m月%-d日"
+  date_month      : "%Y年%-m月"
+  nav:
+    publications  : "論文"
+    talks         : "学会発表"
+    awards        : "受賞"
+  formats:
+    oral          : "口頭発表"
+    poster        : "ポスター発表"
+    invited       : "招待講演"
+  publications:
+    submitted     : "投稿中"
+    published     : "掲載論文"
+    none          : "まだありません．"
+  talks:
+    peer_reviewed : "査読あり"
+    non_reviewed  : "査読なし"
+    none          : "まだありません．"
+  awards:
+    none          : "受賞はまだありません．"
+
+en:
+  html_lang       : "en"
+  og_locale       : "en_US"
+  home            : "/en/"
+  switch_label    : "日本語"
+  switch_title    : "日本語に切り替え"
+  bio             : "Ph.D. student at The University of Osaka, working on fluid mechanics."
+  location        : "Osaka, Japan"
+  author_sep      : ", "
+  author_last_sep : " and "
+  list_sep        : ", "
+  date_day        : "%B %-d, %Y"
+  date_month      : "%B %Y"
+  nav:
+    publications  : "Publications"
+    talks         : "Talks"
+    awards        : "Awards"
+  formats:
+    oral          : "Oral presentation"
+    poster        : "Poster presentation"
+    invited       : "Invited talk"
+  publications:
+    submitted     : "Submitted manuscripts"
+    published     : "Published papers"
+    none          : "None yet."
+  talks:
+    peer_reviewed : "Peer-reviewed conferences"
+    non_reviewed  : "Non-peer-reviewed conferences"
+    none          : "None yet."
+  awards:
+    none          : "No awards yet."

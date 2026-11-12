@@ -1,0 +1,23 @@
+{% comment %} Body of the Talks page: peer-reviewed and other talks, newest first. {% endcomment %}
+{% assign t = site.data.i18n[page.lang] %}
+{% assign all_talks = site.talks | sort: "date" | reverse %}
+
+{% assign talks = all_talks | where: "peer_reviewed", true %}
+<h2 class="section-heading section-heading--accent"><i class="fas fa-circle-check" aria-hidden="true"></i>{{ t.talks.peer_reviewed }}</h2>
+{% if talks.size == 0 %}
+  <p><em>{{ t.talks.none }}</em></p>
+{% else %}
+  <ol class="entry-list" reversed>
+    {% for talk in talks %}{% include talk-item.html %}{% endfor %}
+  </ol>
+{% endif %}
+
+{% assign talks = all_talks | where: "peer_reviewed", false %}
+<h2 class="section-heading"><i class="fas fa-circle" aria-hidden="true"></i>{{ t.talks.non_reviewed }}</h2>
+{% if talks.size == 0 %}
+  <p><em>{{ t.talks.none }}</em></p>
+{% else %}
+  <ol class="entry-list" reversed>
+    {% for talk in talks %}{% include talk-item.html %}{% endfor %}
+  </ol>
+{% endif %}

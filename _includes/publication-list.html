@@ -1,0 +1,27 @@
+{% comment %} Body of the Publications page: submitted and published papers, newest first. {% endcomment %}
+{% assign t = site.data.i18n[page.lang] %}
+{% assign all_pubs = site.publications | sort: "date" | reverse %}
+
+{% assign statuses = "submitted,published" | split: "," %}
+{% for status in statuses %}
+  {% assign pubs = all_pubs | where: "pub_status", status %}
+  {% if status == "published" %}
+    <h2 class="section-heading section-heading--accent"><i class="fas fa-circle-check" aria-hidden="true"></i>{{ t.publications.published }}</h2>
+  {% else %}
+    <h2 class="section-heading"><i class="fas fa-file-lines" aria-hidden="true"></i>{{ t.publications.submitted }}</h2>
+  {% endif %}
+
+  {% if pubs.size == 0 %}
+    <p><em>{{ t.publications.none }}</em></p>
+  {% else %}
+    <ol class="entry-list" reversed>
+      {% for pub in pubs %}
+        <li>
+          <p class="entry__title">{% if pub.link %}<a href="{{ pub.link }}">{{ pub.title }}</a>{% else %}{{ pub.title }}{% endif %}</p>
+          <p class="entry__authors">{% include author-list.html authors=pub.authors lang="en" %}</p>
+          {% if pub.venue %}<p class="entry__meta"><i>{{ pub.venue }}</i></p>{% endif %}
+        </li>
+      {% endfor %}
+    </ol>
+  {% endif %}
+{% endfor %}
