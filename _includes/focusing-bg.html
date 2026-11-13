@@ -4,11 +4,13 @@
 {% endcomment %}
 {% assign t = site.data.i18n[page.lang] %}
 <section class="focusing-hero" aria-label="{{ t.focusing.caption }}">
+  <div class="focusing-hero__inner">
   <canvas id="focusing-bg" aria-hidden="true"></canvas>
   <div class="focusing-ui" role="group" aria-label="{{ t.focusing.caption }}">
     <span class="focusing-ui__modes">
       <button type="button" data-mode="newtonian" aria-pressed="true">{{ t.focusing.newtonian }}</button>
       <button type="button" data-mode="viscoelastic" aria-pressed="false">{{ t.focusing.viscoelastic }}</button>
     </span>
+  </div>
   </div>
 </section>

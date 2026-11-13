@@ -16,7 +16,9 @@
   const ctx = canvas.getContext("2d");
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  const RGB = "26, 78, 138";      // link blue of the site
+  const RGB = "26, 78, 138";      // link blue of the site, for the particles
+  const INK = "40, 50, 65";       // dark gray for the walls and the velocity profile
+  const HATCH = 7;                // px, spacing and length of the wall hatching
   const Y_EQ = 0.6;               // Newtonian equilibrium position (fraction of the half width)
   const CROSSING_TIME = 14;       // s for a centreline particle to cross the banner
   const K_NEWTONIAN = 0.25;       // 1/s, migration rate to +-Y_EQ
@@ -24,7 +26,7 @@
   const INLET = 0.2;              // fraction of the width over which migration ramps up
   const DWELL = 1.5;              // s near an equilibrium before a particle glows fully
   const NOISE = 0.02;             // random walk, keeps the unstable centreline alive
-  const WALL_INSET = 18;          // px between the canvas edge and a wall
+  const WALL_INSET = 12;          // px between the canvas edge and a wall (room for the hatching)
   const BURST = 16;               // particles added per click
 
   let mode = "newtonian";
@@ -63,7 +65,7 @@
   const randomY = () => (Math.random() * 2 - 1) * 0.9;
 
   function newParticle(x) {
-    return { x, y: randomY(), size: 0.8 + 0.4 * Math.random(), kx: 0, ky: 0, flash: 0, dwell: 0, recycle: true };
+    return { x, y: randomY(), kx: 0, ky: 0, flash: 0, dwell: 0, recycle: true };
   }
 
   // Start a particle at the inlet and let it travel to x, so that the first frame
@@ -111,33 +113,41 @@
     ripples = ripples.filter((r) => r.age < 0.9);
   }
 
-  // Walls that fade out at both ends, and a faint parabolic profile at the inlet.
+  // Horizontal gradient that fades a stroke out at both ends of the banner.
+  function fadeStroke(alpha) {
+    const g = ctx.createLinearGradient(0, 0, width, 0);
+    g.addColorStop(0, `rgba(${INK}, 0)`);
+    g.addColorStop(0.06, `rgba(${INK}, ${alpha})`);
+    g.addColorStop(0.94, `rgba(${INK}, ${alpha})`);
+    g.addColorStop(1, `rgba(${INK}, 0)`);
+    return g;
+  }
+
+  // Walls drawn with the textbook wall symbol (a line hatched on the solid side),
+  // fading out at both ends, and the parabolic velocity profile at the inlet.
   function drawChannel() {
     const top = WALL_INSET, bottom = height - WALL_INSET;
-    const fade = ctx.createLinearGradient(0, 0, width, 0);
-    fade.addColorStop(0, `rgba(${RGB}, 0)`);
-    fade.addColorStop(0.08, `rgba(${RGB}, 0.35)`);
-    fade.addColorStop(0.92, `rgba(${RGB}, 0.35)`);
-    fade.addColorStop(1, `rgba(${RGB}, 0)`);
-    ctx.strokeStyle = fade;
-    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = fadeStroke(0.7);
+    ctx.lineWidth = 1.25;
+    ctx.beginPath();
     for (const yw of [top, bottom]) {
-      ctx.beginPath();
       ctx.moveTo(0, yw);
       ctx.lineTo(width, yw);
-      ctx.stroke();
     }
-    // Light shading just inside the walls.
-    for (const [yw, dir] of [[top, 1], [bottom, -1]]) {
-      const g = ctx.createLinearGradient(0, yw, 0, yw + dir * 10);
-      g.addColorStop(0, `rgba(${RGB}, 0.06)`);
-      g.addColorStop(1, `rgba(${RGB}, 0)`);
-      ctx.fillStyle = g;
-      ctx.fillRect(0, Math.min(yw, yw + dir * 10), width, 10);
+    ctx.stroke();
+    ctx.strokeStyle = fadeStroke(0.35);
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    for (let x = 0; x < width + HATCH; x += HATCH) {
+      ctx.moveTo(x, top);
+      ctx.lineTo(x - HATCH, top - HATCH);
+      ctx.moveTo(x, bottom);
+      ctx.lineTo(x - HATCH, bottom + HATCH);
     }
+    ctx.stroke();
     // Velocity profile u = 1 - y^2 with a few arrows.
     const x0 = Math.min(70, width * 0.06), len = Math.min(60, width * 0.05);
-    ctx.strokeStyle = `rgba(${RGB}, 0.25)`;
+    ctx.strokeStyle = `rgba(${INK}, 0.3)`;
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(x0, top);
@@ -165,25 +175,25 @@
   function draw() {
     ctx.clearRect(0, 0, width, height);
     drawChannel();
-    const scale = Math.max(1, Math.min(1.6, height / 200));
+    // All particles have the same size (monodisperse spheres). Travelling particles are
+    // drawn as open circles; they fill in once they have settled at an equilibrium.
+    const radius = Math.max(2.5, Math.min(4, height / 60));
+    ctx.lineWidth = 1;
     for (const p of particles) {
       const g = glow(p);
-      const radius = (2 + 1.6 * g) * p.size * scale;
       const sx = p.x * width, sy = toScreenY(p.y);
-      if (g > 0.2) {
-        ctx.fillStyle = `rgba(${RGB}, ${0.1 * g})`;
-        ctx.beginPath();
-        ctx.arc(sx, sy, radius * 3, 0, 2 * Math.PI);
-        ctx.fill();
-      }
-      ctx.fillStyle = `rgba(${RGB}, ${0.3 + 0.5 * g})`;
       ctx.beginPath();
       ctx.arc(sx, sy, radius, 0, 2 * Math.PI);
+      ctx.fillStyle = `rgba(255, 255, 255, ${1 - g})`;
       ctx.fill();
+      ctx.fillStyle = `rgba(${RGB}, ${0.85 * g})`;
+      ctx.fill();
+      ctx.strokeStyle = `rgba(${RGB}, ${0.55 + 0.3 * g})`;
+      ctx.stroke();
     }
     for (const r of ripples) {
       const t = r.age / 0.9;
-      ctx.strokeStyle = `rgba(${RGB}, ${0.3 * (1 - t)})`;
+      ctx.strokeStyle = `rgba(${INK}, ${0.35 * (1 - t)})`;
       ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.arc(r.x, r.y, 6 + 45 * t, 0, 2 * Math.PI);
@@ -203,7 +213,7 @@
       const angle = Math.random() * 2 * Math.PI;
       const kick = 0.04 + 0.08 * Math.random();
       particles.push({
-        x: cx / width, y, size: 0.8 + 0.4 * Math.random(),
+        x: cx / width, y,
         kx: kick * Math.cos(angle) * 0.5,
         ky: kick * Math.sin(angle) * 6,
         flash: 1,

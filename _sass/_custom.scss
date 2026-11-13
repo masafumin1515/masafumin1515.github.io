@@ -112,9 +112,18 @@ a {
    ========================================================================== */
 
 .focusing-hero {
-  position: relative;
-  margin-bottom: 0.5em;
-  border-bottom: 1px solid $rule-gray;
+  margin-top: 1em;
+
+  /* Same width as the page content (#main) */
+  &__inner {
+    @include container;
+    position: relative;
+    padding: 0 1em;
+
+    @include breakpoint($x-large) {
+      max-width: $x-large;
+    }
+  }
 
   canvas {
     display: block;
@@ -139,22 +148,26 @@ a {
   }
 }
 
+/* Mode switch: inside the channel at the lower right; below it on small screens */
 .focusing-ui {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
   justify-content: flex-end;
-  gap: 0.3em 1em;
-  max-width: $x-large;
-  margin: 0 auto;
-  padding: 0 1em 0.6em;
+  gap: 0.3em;
+  padding-top: 0.4em;
   font-size: $type-size-7;
+
+  @include breakpoint($medium) {
+    position: absolute;
+    right: 2em;
+    bottom: 20px;
+    padding: 0;
+  }
 
   button {
     padding: 0.15em 0.8em;
     font: inherit;
     color: $link-blue;
-    background: transparent;
+    background: rgba(255, 255, 255, 0.9);
     border: 1px solid $rule-gray;
     border-radius: 999px;
     cursor: pointer;
