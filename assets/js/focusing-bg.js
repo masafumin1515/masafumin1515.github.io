@@ -4,10 +4,11 @@
 // Particles are carried downstream by the parabolic (Poiseuille) profile and migrate
 // across the streamlines to their equilibrium positions: y = +-Y_EQ in a Newtonian fluid
 // (Segre-Silberberg), the centreline y = 0 in a polymer solution (viscoelastic focusing).
-// They enter scattered on the left and leave focused on the right.
+// They enter scattered on the left and are focused from about the middle of the banner on.
 //
-// The migration law is a placeholder with the right qualitative shape; replace lift()
-// with a fit of the computed lift when available.
+// The migration law is a placeholder (linear relaxation to the nearest equilibrium, ramped
+// up over an inlet length) tuned for the look; replace lift() with a fit of the computed
+// lift when available.
 
 (() => {
   const canvas = document.getElementById("focusing-bg");
@@ -18,8 +19,10 @@
   const RGB = "26, 78, 138";      // link blue of the site
   const Y_EQ = 0.6;               // Newtonian equilibrium position (fraction of the half width)
   const CROSSING_TIME = 14;       // s for a centreline particle to cross the banner
-  const K_NEWTONIAN = 0.2;        // 1/s, migration rate to +-Y_EQ
-  const K_VISCOELASTIC = 0.12;    // 1/s, migration rate to the centreline
+  const K_NEWTONIAN = 0.25;       // 1/s, migration rate to +-Y_EQ
+  const K_VISCOELASTIC = 0.4;     // 1/s, migration rate to the centreline
+  const INLET = 0.2;              // fraction of the width over which migration ramps up
+  const DWELL = 1.5;              // s near an equilibrium before a particle glows fully
   const NOISE = 0.02;             // random walk, keeps the unstable centreline alive
   const WALL_INSET = 18;          // px between the canvas edge and a wall
   const BURST = 16;               // particles added per click
@@ -30,32 +33,47 @@
   let ripples = [];
   let visible = true;
 
-  // Lateral migration velocity dy/dt.
-  function lift(y) {
-    if (mode === "viscoelastic") return -K_VISCOELASTIC * y;
-    return K_NEWTONIAN * y * (1 - (y / Y_EQ) ** 2);   // unstable at 0, stable at +-Y_EQ
+  // Lateral migration velocity dy/dt at height y and streamwise position x.
+  function lift(y, x) {
+    const ramp = Math.min(1, Math.max(0, x / INLET));
+    if (mode === "viscoelastic") return -ramp * K_VISCOELASTIC * y;
+    return ramp * K_NEWTONIAN * ((y >= 0 ? Y_EQ : -Y_EQ) - y);   // centreline unstable
   }
 
   // Streamwise velocity in banner widths per second.
   const speed = (y) => (1 - y * y) / CROSSING_TIME;
 
-  // How close a particle is to an equilibrium position, 0..1. Used for the glow.
+  // How close a particle is to an equilibrium position, 0..1.
   function focus(y) {
     const d = mode === "viscoelastic" ? y : Math.abs(y) - Y_EQ;
     return Math.exp(-(d * d) / 0.0015);
   }
 
+  // Glow: close to an equilibrium AND stayed there for a while, so that particles
+  // merely passing by on the left do not light up.
+  const glow = (p) => Math.min(1, focus(p.y) * Math.min(1, p.dwell / DWELL) + p.flash);
+
+  // Lateral motion and dwell-time bookkeeping shared by step() and warmedUp().
+  function migrate(p, dt, noise) {
+    p.y += lift(p.y, p.x) * dt + noise * Math.sqrt(dt) * (Math.random() * 2 - 1);
+    p.y = Math.max(-0.92, Math.min(0.92, p.y));
+    p.dwell = focus(p.y) > 0.3 ? p.dwell + dt : Math.max(0, p.dwell - 2 * dt);
+  }
+
   const randomY = () => (Math.random() * 2 - 1) * 0.9;
 
   function newParticle(x) {
-    return { x, y: randomY(), size: 0.8 + 0.4 * Math.random(), kx: 0, ky: 0, flash: 0, recycle: true };
+    return { x, y: randomY(), size: 0.8 + 0.4 * Math.random(), kx: 0, ky: 0, flash: 0, dwell: 0, recycle: true };
   }
 
-  // A particle placed at x has already travelled for a while; let it migrate for
-  // that long so the first frame already looks developed.
+  // Start a particle at the inlet and let it travel to x, so that the first frame
+  // already shows the developed state.
   function warmedUp(p) {
-    for (let t = 0; t < p.x * CROSSING_TIME / (1 - p.y * p.y + 0.2); t += 0.1) {
-      p.y += lift(p.y) * 0.1 + NOISE * 0.3 * (Math.random() * 2 - 1);
+    const target = p.x;
+    p.x = 0;
+    while (p.x < target) {
+      migrate(p, 0.1, NOISE);
+      p.x += speed(p.y) * 0.1;
     }
     return p;
   }
@@ -78,11 +96,10 @@
   const fromScreenY = (sy) => (sy - height / 2) / (channelHalf() - 4);
 
   function step(dt) {
-    const sqrtDt = Math.sqrt(dt);
     const decay = Math.exp(-dt / 0.35);
     for (const p of particles) {
-      p.y += lift(p.y) * dt + NOISE * sqrtDt * (Math.random() * 2 - 1) + p.ky * dt;
-      p.y = Math.max(-0.92, Math.min(0.92, p.y));
+      p.y += p.ky * dt;
+      migrate(p, dt, NOISE);
       p.x += speed(p.y) * dt + p.kx * dt;
       p.kx *= decay;
       p.ky *= decay;
@@ -150,7 +167,7 @@
     drawChannel();
     const scale = Math.max(1, Math.min(1.6, height / 200));
     for (const p of particles) {
-      const g = Math.min(1, focus(p.y) + p.flash);
+      const g = glow(p);
       const radius = (2 + 1.6 * g) * p.size * scale;
       const sx = p.x * width, sy = toScreenY(p.y);
       if (g > 0.2) {
@@ -190,6 +207,7 @@
         kx: kick * Math.cos(angle) * 0.5,
         ky: kick * Math.sin(angle) * 6,
         flash: 1,
+        dwell: 0,
         recycle: false,
       });
     }
@@ -206,7 +224,10 @@
 
   // Without animation: jump to the focused state and draw it once.
   function settle() {
-    for (let i = 0; i < 400; i++) for (const p of particles) p.y += lift(p.y) * 0.1;
+    for (const p of particles) {
+      for (let i = 0; i < 400; i++) p.y += lift(p.y, p.x) * 0.1;
+      p.dwell = DWELL;
+    }
   }
 
   document.querySelectorAll(".focusing-ui [data-mode]").forEach((b) => {
