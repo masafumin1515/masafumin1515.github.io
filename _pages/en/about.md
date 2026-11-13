@@ -2,6 +2,7 @@
 permalink: /en/
 title: "Masafumi Hayashi"
 author_profile: true
+focusing_bg: true
 redirect_from:
   - /en/about/
 ---

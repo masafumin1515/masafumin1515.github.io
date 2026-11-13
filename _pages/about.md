@@ -2,6 +2,7 @@
 permalink: /
 title: "林 真史 / Masafumi Hayashi"
 author_profile: true
+focusing_bg: true
 redirect_from:
   - /about/
   - /about.html

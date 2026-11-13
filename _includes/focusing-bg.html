@@ -1,0 +1,12 @@
+{% comment %}
+  Animated background of the top page (assets/js/focusing-bg.js).
+  Enabled by `focusing_bg: true` in the front matter.
+{% endcomment %}
+{% assign t = site.data.i18n[page.lang] %}
+<canvas id="focusing-bg" aria-hidden="true"></canvas>
+<div class="focusing-ui" role="group" aria-label="{{ t.focusing.caption }}">
+  <span class="focusing-ui__caption">{{ t.focusing.caption }}</span>
+  <button type="button" data-mode="newtonian" aria-pressed="true">{{ t.focusing.newtonian }}</button>
+  <button type="button" data-mode="viscoelastic" aria-pressed="false">{{ t.focusing.viscoelastic }}</button>
+</div>
+<script defer src="{{ base_path }}/assets/js/focusing-bg.js"></script>

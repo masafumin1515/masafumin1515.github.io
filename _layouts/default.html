@@ -11,7 +11,7 @@ layout: compress
     {% include head/custom.html %}
   </head>
 
-  <body>
+  <body{% if page.focusing_bg %} class="has-focusing-bg"{% endif %}>
 
     {% include browser-upgrade.html %}
     {% include masthead.html %}
@@ -26,6 +26,7 @@ layout: compress
     </div>
 
     {% include scripts.html %}
+    {% if page.focusing_bg %}{% include focusing-bg.html %}{% endif %}
 
   </body>
 </html>
