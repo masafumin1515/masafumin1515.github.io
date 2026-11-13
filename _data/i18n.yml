@@ -36,7 +36,7 @@ ja:
   awards:
     none          : "受賞はまだありません．"
   focusing:
-    caption       : "背景：ダクト内の粒子集束（クリックで粒子を追加）"
+    caption       : "流路を流れる粒子の集束（クリックで粒子を追加）"
     newtonian     : "ニュートン流体"
     viscoelastic  : "高分子溶液"
 
@@ -72,6 +72,6 @@ en:
   awards:
     none          : "No awards yet."
   focusing:
-    caption       : "Background: particle focusing in a duct (click to add particles)"
+    caption       : "Particle focusing in a channel flow (click to add particles)"
     newtonian     : "Newtonian"
     viscoelastic  : "Polymer solution"

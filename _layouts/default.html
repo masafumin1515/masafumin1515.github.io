@@ -11,10 +11,11 @@ layout: compress
     {% include head/custom.html %}
   </head>
 
-  <body{% if page.focusing_bg %} class="has-focusing-bg"{% endif %}>
+  <body>
 
     {% include browser-upgrade.html %}
     {% include masthead.html %}
+    {% if page.focusing_bg %}{% include focusing-bg.html %}{% endif %}
 
     {{ content }}
 
@@ -26,7 +27,7 @@ layout: compress
     </div>
 
     {% include scripts.html %}
-    {% if page.focusing_bg %}{% include focusing-bg.html %}{% endif %}
+    {% if page.focusing_bg %}<script defer src="{{ base_path }}/assets/js/focusing-bg.js"></script>{% endif %}
 
   </body>
 </html>

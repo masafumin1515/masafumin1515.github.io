@@ -108,62 +108,65 @@ a {
 }
 
 /* ==========================================================================
-   Animated background of the top page (_includes/focusing-bg.html)
+   Animated banner of the top page (_includes/focusing-bg.html)
    ========================================================================== */
 
-/* The body background would paint over the canvas; html keeps the white. */
-html {
-  background-color: #fff;
+.focusing-hero {
+  position: relative;
+  margin-bottom: 0.5em;
+  border-bottom: 1px solid $rule-gray;
+
+  canvas {
+    display: block;
+    width: 100%;
+    height: 220px;
+    cursor: crosshair;
+
+    @include breakpoint(max-width $medium) {
+      height: 150px;
+    }
+  }
 }
 
-body.has-focusing-bg {
-  background: transparent;
-}
-
-#focusing-bg {
-  position: fixed;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  z-index: -1;
-  pointer-events: none;
+/* The theme pins the sidebar to the window on wide screens, which would cover the
+   banner. Below the banner it starts in the flow and sticks under the header. */
+.focusing-hero ~ #main .sidebar {
+  @media screen and (min-width: $sidebar-screen-min-width) {
+    position: sticky;
+    top: $masthead-height;
+    height: calc(100vh - #{$masthead-height});
+    padding-top: 0;
+  }
 }
 
 .focusing-ui {
-  position: fixed;
-  right: 1em;
-  bottom: 1em;
-  z-index: 30;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 0.4em;
-  padding: 0.3em 0.5em;
+  justify-content: space-between;
+  gap: 0.3em 1em;
+  max-width: $x-large;
+  margin: 0 auto;
+  padding: 0 1em 0.6em;
   font-size: $type-size-7;
-  background: rgba(255, 255, 255, 0.85);
-  border: 1px solid $rule-gray;
-  border-radius: 999px;
 
   &__caption {
     color: #666;
-    margin-right: 0.2em;
-
-    @include breakpoint(max-width $medium) {
-      display: none;
-    }
   }
 
   button {
-    padding: 0.15em 0.7em;
+    padding: 0.15em 0.8em;
     font: inherit;
     color: $link-blue;
     background: transparent;
-    border: 1px solid transparent;
+    border: 1px solid $rule-gray;
     border-radius: 999px;
     cursor: pointer;
 
     &[aria-pressed="true"] {
       color: #fff;
       background: $link-blue;
+      border-color: $link-blue;
     }
   }
 }

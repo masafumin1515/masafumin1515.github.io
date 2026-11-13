@@ -1,12 +1,10 @@
-// Background animation of the top page: inertial focusing of particles in a square duct.
+// Banner animation of the top page: inertial focusing of particles in a channel flow.
 //
-// Each particle has a position (y, z) in the duct cross-section (half width = 1) and is
-// carried downstream (left to right) by a duct-like velocity profile. It migrates across
-// the streamlines in two stages, as in the simulations: first radially onto a ring of
-// radius R_EQ, then slowly along the ring to the four face centres. The screen shows the
-// side view, i.e. the projection on y, so the particles enter scattered on the left and
-// leave in three lines (y = -R_EQ, 0, +R_EQ) on the right. In "polymer solution" mode the
-// particles migrate to the centreline instead (viscoelastic focusing).
+// Side view of a channel (walls at the top and bottom of the banner, half width = 1).
+// Particles are carried downstream by the parabolic (Poiseuille) profile and migrate
+// across the streamlines to their equilibrium positions: y = +-Y_EQ in a Newtonian fluid
+// (Segre-Silberberg), the centreline y = 0 in a polymer solution (viscoelastic focusing).
+// They enter scattered on the left and leave focused on the right.
 //
 // The migration law is a placeholder with the right qualitative shape; replace lift()
 // with a fit of the computed lift when available.
@@ -18,96 +16,77 @@
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   const RGB = "26, 78, 138";      // link blue of the site
-  const R_EQ = 0.6;               // radius of the focusing ring (fraction of the half width)
-  const CROSSING_TIME = 18;       // s for a centreline particle to cross the screen
-  const K_RADIAL = 0.12;          // 1/s, migration onto the ring
-  const K_ANGULAR = 0.05;         // 1/s, migration along the ring to the face centres
-  const K_VISCOELASTIC = 0.12;    // 1/s, migration to the centreline
-  const NOISE = 0.015;            // random walk in the cross-section, keeps the unstable centre alive
-  const BURST = 28;               // particles added per click
+  const Y_EQ = 0.6;               // Newtonian equilibrium position (fraction of the half width)
+  const CROSSING_TIME = 14;       // s for a centreline particle to cross the banner
+  const K_NEWTONIAN = 0.2;        // 1/s, migration rate to +-Y_EQ
+  const K_VISCOELASTIC = 0.12;    // 1/s, migration rate to the centreline
+  const NOISE = 0.02;             // random walk, keeps the unstable centreline alive
+  const WALL_INSET = 18;          // px between the canvas edge and a wall
+  const BURST = 16;               // particles added per click
 
   let mode = "newtonian";
   let width = 0, height = 0, dpr = 1;
   let particles = [];
   let ripples = [];
+  let visible = true;
 
-  // Lateral migration velocity (dy/dt, dz/dt) at a cross-section position.
-  function lift(y, z) {
-    if (mode === "viscoelastic") return [-K_VISCOELASTIC * y, -K_VISCOELASTIC * z];
-    const r = Math.hypot(y, z) + 1e-9;
-    const theta = Math.atan2(z, y);
-    const dr = K_RADIAL * r * (1 - (r / R_EQ) ** 2);   // unstable at r = 0, stable at r = R_EQ
-    const dtheta = -K_ANGULAR * Math.sin(4 * theta);    // stable at the face centres
-    return [
-      dr * Math.cos(theta) - r * dtheta * Math.sin(theta),
-      dr * Math.sin(theta) + r * dtheta * Math.cos(theta),
-    ];
+  // Lateral migration velocity dy/dt.
+  function lift(y) {
+    if (mode === "viscoelastic") return -K_VISCOELASTIC * y;
+    return K_NEWTONIAN * y * (1 - (y / Y_EQ) ** 2);   // unstable at 0, stable at +-Y_EQ
   }
 
-  // Streamwise velocity in screen widths per second (approximate square-duct profile).
-  function speed(y, z) {
-    return (1 - y * y) * (1 - z * z) / CROSSING_TIME;
+  // Streamwise velocity in banner widths per second.
+  const speed = (y) => (1 - y * y) / CROSSING_TIME;
+
+  // How close a particle is to an equilibrium position, 0..1. Used for the glow.
+  function focus(y) {
+    const d = mode === "viscoelastic" ? y : Math.abs(y) - Y_EQ;
+    return Math.exp(-(d * d) / 0.0015);
   }
 
-  // How close a particle is to a focusing position, 0..1. Used for the glow.
-  function focus(y, z) {
-    if (mode === "viscoelastic") return Math.exp(-(y * y + z * z) / 0.004);
-    const targets = [[R_EQ, 0], [-R_EQ, 0], [0, R_EQ], [0, -R_EQ]];
-    let best = Infinity;
-    for (const [ty, tz] of targets) best = Math.min(best, (y - ty) ** 2 + (z - tz) ** 2);
-    return Math.exp(-best / 0.004);
-  }
-
-  const randomCoord = () => (Math.random() * 2 - 1) * 0.92;
+  const randomY = () => (Math.random() * 2 - 1) * 0.9;
 
   function newParticle(x) {
-    return { x, y: randomCoord(), z: randomCoord(), kx: 0, ky: 0, flash: 0, recycle: true };
+    return { x, y: randomY(), size: 0.8 + 0.4 * Math.random(), kx: 0, ky: 0, flash: 0, recycle: true };
   }
 
-  // A particle placed at x has already travelled about x * CROSSING_TIME seconds;
-  // let it migrate for that long so the first frame already looks developed.
+  // A particle placed at x has already travelled for a while; let it migrate for
+  // that long so the first frame already looks developed.
   function warmedUp(p) {
-    for (let t = 0; t < p.x * CROSSING_TIME; t += 0.1) {
-      const [vy, vz] = lift(p.y, p.z);
-      p.y += vy * 0.1 + NOISE * 0.3 * (Math.random() * 2 - 1);
-      p.z += vz * 0.1 + NOISE * 0.3 * (Math.random() * 2 - 1);
+    for (let t = 0; t < p.x * CROSSING_TIME / (1 - p.y * p.y + 0.2); t += 0.1) {
+      p.y += lift(p.y) * 0.1 + NOISE * 0.3 * (Math.random() * 2 - 1);
     }
     return p;
   }
 
   function resize() {
     dpr = Math.min(window.devicePixelRatio || 1, 2);
-    width = window.innerWidth;
-    height = window.innerHeight;
+    width = canvas.clientWidth;
+    height = canvas.clientHeight;
     if (!width || !height) return;   // not laid out yet; frame() retries
     canvas.width = Math.round(width * dpr);
     canvas.height = Math.round(height * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    const count = Math.min(220, Math.round(width * height / 7000));
+    const count = Math.max(45, Math.min(140, Math.round(width * height / 3000)));
     while (particles.length < count) particles.push(warmedUp(newParticle(Math.random())));
     particles = particles.filter((p, i) => !p.recycle || i < count);
   }
 
-  const toScreenY = (y) => (0.5 + 0.47 * y) * height;
-  const fromScreenY = (sy) => (sy / height - 0.5) / 0.47;
+  const channelHalf = () => (height - 2 * WALL_INSET) / 2;
+  const toScreenY = (y) => height / 2 + y * (channelHalf() - 4);
+  const fromScreenY = (sy) => (sy - height / 2) / (channelHalf() - 4);
 
   function step(dt) {
     const sqrtDt = Math.sqrt(dt);
+    const decay = Math.exp(-dt / 0.35);
     for (const p of particles) {
-      const [vy, vz] = lift(p.y, p.z);
-      p.y += vy * dt + NOISE * sqrtDt * (Math.random() * 2 - 1);
-      p.z += vz * dt + NOISE * sqrtDt * (Math.random() * 2 - 1);
-      p.y = Math.max(-0.95, Math.min(0.95, p.y));
-      p.z = Math.max(-0.95, Math.min(0.95, p.z));
-      // Kick from a click, decaying quickly (in screen units).
-      p.x += speed(p.y, p.z) * dt + p.kx * dt;
-      p.y += p.ky * dt;
-      const decay = Math.exp(-dt / 0.35);
+      p.y += lift(p.y) * dt + NOISE * sqrtDt * (Math.random() * 2 - 1) + p.ky * dt;
+      p.y = Math.max(-0.92, Math.min(0.92, p.y));
+      p.x += speed(p.y) * dt + p.kx * dt;
       p.kx *= decay;
       p.ky *= decay;
       p.flash *= Math.exp(-dt / 1.2);
-    }
-    for (const p of particles) {
       if (p.x > 1.02 && p.recycle) Object.assign(p, newParticle(-0.02));
     }
     particles = particles.filter((p) => p.x <= 1.02);
@@ -115,56 +94,107 @@
     ripples = ripples.filter((r) => r.age < 0.9);
   }
 
+  // Walls that fade out at both ends, and a faint parabolic profile at the inlet.
+  function drawChannel() {
+    const top = WALL_INSET, bottom = height - WALL_INSET;
+    const fade = ctx.createLinearGradient(0, 0, width, 0);
+    fade.addColorStop(0, `rgba(${RGB}, 0)`);
+    fade.addColorStop(0.08, `rgba(${RGB}, 0.35)`);
+    fade.addColorStop(0.92, `rgba(${RGB}, 0.35)`);
+    fade.addColorStop(1, `rgba(${RGB}, 0)`);
+    ctx.strokeStyle = fade;
+    ctx.lineWidth = 1.5;
+    for (const yw of [top, bottom]) {
+      ctx.beginPath();
+      ctx.moveTo(0, yw);
+      ctx.lineTo(width, yw);
+      ctx.stroke();
+    }
+    // Light shading just inside the walls.
+    for (const [yw, dir] of [[top, 1], [bottom, -1]]) {
+      const g = ctx.createLinearGradient(0, yw, 0, yw + dir * 10);
+      g.addColorStop(0, `rgba(${RGB}, 0.06)`);
+      g.addColorStop(1, `rgba(${RGB}, 0)`);
+      ctx.fillStyle = g;
+      ctx.fillRect(0, Math.min(yw, yw + dir * 10), width, 10);
+    }
+    // Velocity profile u = 1 - y^2 with a few arrows.
+    const x0 = Math.min(70, width * 0.06), len = Math.min(60, width * 0.05);
+    ctx.strokeStyle = `rgba(${RGB}, 0.25)`;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(x0, top);
+    for (let i = 0; i <= 40; i++) {
+      const y = -1 + i / 20;
+      ctx.lineTo(x0 + len * (1 - y * y), height / 2 + y * channelHalf());
+    }
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x0, top);
+    ctx.lineTo(x0, bottom);
+    ctx.stroke();
+    for (const y of [-0.66, -0.33, 0, 0.33, 0.66]) {
+      const sy = height / 2 + y * channelHalf(), ex = x0 + len * (1 - y * y);
+      ctx.beginPath();
+      ctx.moveTo(x0, sy);
+      ctx.lineTo(ex, sy);
+      ctx.moveTo(ex - 4, sy - 3);
+      ctx.lineTo(ex, sy);
+      ctx.lineTo(ex - 4, sy + 3);
+      ctx.stroke();
+    }
+  }
+
   function draw() {
     ctx.clearRect(0, 0, width, height);
+    drawChannel();
+    const scale = Math.max(1, Math.min(1.6, height / 200));
     for (const p of particles) {
-      const g = Math.min(1, focus(p.y, p.z) + p.flash);
-      const depth = 0.85 + 0.3 * (p.z + 1) / 2;            // slightly larger when nearer
-      const radius = (1.7 + 1.3 * g) * depth;
+      const g = Math.min(1, focus(p.y) + p.flash);
+      const radius = (2 + 1.6 * g) * p.size * scale;
       const sx = p.x * width, sy = toScreenY(p.y);
       if (g > 0.2) {
-        ctx.fillStyle = `rgba(${RGB}, ${0.06 * g})`;
+        ctx.fillStyle = `rgba(${RGB}, ${0.1 * g})`;
         ctx.beginPath();
-        ctx.arc(sx, sy, radius * 3.2, 0, 2 * Math.PI);
+        ctx.arc(sx, sy, radius * 3, 0, 2 * Math.PI);
         ctx.fill();
       }
-      ctx.fillStyle = `rgba(${RGB}, ${0.18 + 0.34 * g})`;
+      ctx.fillStyle = `rgba(${RGB}, ${0.3 + 0.5 * g})`;
       ctx.beginPath();
       ctx.arc(sx, sy, radius, 0, 2 * Math.PI);
       ctx.fill();
     }
     for (const r of ripples) {
       const t = r.age / 0.9;
-      ctx.strokeStyle = `rgba(${RGB}, ${0.25 * (1 - t)})`;
+      ctx.strokeStyle = `rgba(${RGB}, ${0.3 * (1 - t)})`;
       ctx.lineWidth = 1;
       ctx.beginPath();
-      ctx.arc(r.x, r.y, 8 + 60 * t, 0, 2 * Math.PI);
+      ctx.arc(r.x, r.y, 6 + 45 * t, 0, 2 * Math.PI);
       ctx.stroke();
     }
   }
 
-  // Clicking anywhere except on links and controls injects a burst of particles.
-  function onClick(event) {
+  // Clicking the banner injects a burst of particles at that point.
+  canvas.addEventListener("click", (event) => {
     if (reduceMotion) return;
-    const el = event.target instanceof Element ? event.target : null;
-    if (el && el.closest("a, button, input, textarea, select, label, .focusing-ui")) return;
-    const x = event.clientX / width;
-    const y = fromScreenY(event.clientY);
-    if (Math.abs(y) > 0.95) return;
-    ripples.push({ x: event.clientX, y: event.clientY, age: 0 });
+    const rect = canvas.getBoundingClientRect();
+    const cx = event.clientX - rect.left, cy = event.clientY - rect.top;
+    const y = fromScreenY(cy);
+    if (Math.abs(y) > 0.92) return;
+    ripples.push({ x: cx, y: cy, age: 0 });
     for (let i = 0; i < BURST; i++) {
       const angle = Math.random() * 2 * Math.PI;
-      const kick = 0.05 + 0.1 * Math.random();
+      const kick = 0.04 + 0.08 * Math.random();
       particles.push({
-        x, y, z: randomCoord(),
-        kx: kick * Math.cos(angle) * 0.6,
-        ky: kick * Math.sin(angle) * 2.2,
+        x: cx / width, y, size: 0.8 + 0.4 * Math.random(),
+        kx: kick * Math.cos(angle) * 0.5,
+        ky: kick * Math.sin(angle) * 6,
         flash: 1,
         recycle: false,
       });
     }
-    if (particles.length > 600) particles.splice(0, particles.length - 600);
-  }
+    if (particles.length > 400) particles.splice(0, particles.length - 400);
+  });
 
   function setMode(next) {
     mode = next;
@@ -176,34 +206,34 @@
 
   // Without animation: jump to the focused state and draw it once.
   function settle() {
-    for (let i = 0; i < 400; i++) {
-      for (const p of particles) {
-        const [vy, vz] = lift(p.y, p.z);
-        p.y += vy * 0.1;
-        p.z += vz * 0.1;
-      }
-    }
+    for (let i = 0; i < 400; i++) for (const p of particles) p.y += lift(p.y) * 0.1;
   }
 
   document.querySelectorAll(".focusing-ui [data-mode]").forEach((b) => {
     b.addEventListener("click", () => setMode(b.dataset.mode));
   });
-  window.addEventListener("resize", () => { resize(); if (reduceMotion) draw(); });
-  document.addEventListener("click", onClick);
-  resize();
 
   if (reduceMotion) {
-    window.addEventListener("load", () => { resize(); settle(); draw(); });
+    const still = () => { resize(); settle(); draw(); };
+    window.addEventListener("load", still);
+    window.addEventListener("resize", still);
     return;
+  }
+
+  // Stop drawing while the banner is scrolled out of view.
+  if ("IntersectionObserver" in window) {
+    new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; }).observe(canvas);
   }
 
   let last = performance.now();
   function frame(now) {
     const dt = Math.max(0, Math.min((now - last) / 1000, 0.05));   // first timestamp can precede `last`
     last = now;
-    if (window.innerWidth !== width || window.innerHeight !== height) resize();
-    step(dt);
-    draw();
+    if (canvas.clientWidth !== width || canvas.clientHeight !== height) resize();
+    if (visible && width && height) {
+      step(dt);
+      draw();
+    }
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
